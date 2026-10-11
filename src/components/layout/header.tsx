@@ -205,7 +205,7 @@ export default function Header({ user }: HeaderProps) {
               {/* Dark Mode */}
               <button
                 onClick={toggleDarkMode}
-                className="p-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-950 hidden sm:flex"
+                className="p-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-950"
                 aria-label="Toggle dark mode"
               >
                 {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
