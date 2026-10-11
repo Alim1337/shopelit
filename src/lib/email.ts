@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { formatPrice } from "@/lib/utils";
+import { getAppUrl } from "@/lib/app-url";
 
 // ============================================================
 // EMAIL TRANSPORT CONFIGURATION
@@ -19,7 +20,7 @@ function createTransport() {
 
 const FROM_EMAIL = process.env.EMAIL_FROM || "noreply@shopelite.com";
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "ShopElite";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const APP_URL = getAppUrl();
 
 // ============================================================
 // BASE EMAIL TEMPLATE
@@ -73,6 +74,19 @@ function baseTemplate(content: string): string {
   </div>
 </body>
 </html>`;
+}
+
+// Escape user-controlled text before putting it in HTML emails. Without this,
+// someone can register under another person's email with a name like
+// <a href="https://evil.example">...</a> and the store would send that HTML
+// to the victim from a trusted address.
+function esc(value: unknown): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 // ============================================================
@@ -133,7 +147,7 @@ export async function sendWelcomeEmail(
 ): Promise<void> {
   const html = baseTemplate(`
     <h1>Welcome to ${APP_NAME}! 🎉</h1>
-    <p>Hi ${name || "there"},</p>
+    <p>Hi ${esc(name) || "there"},</p>
     <p>Thank you for creating your account with ${APP_NAME}. We're thrilled to have you as part of our community!</p>
     <p>Here's what you can do with your new account:</p>
     <ul style="margin: 16px 0; padding-left: 20px; color: #475569;">
@@ -163,7 +177,7 @@ export async function sendEmailVerification(
 ): Promise<void> {
   const html = baseTemplate(`
     <h1>Verify Your Email Address</h1>
-    <p>Hi ${name || "there"},</p>
+    <p>Hi ${esc(name) || "there"},</p>
     <p>Please verify your email address by clicking the button below. This link expires in 24 hours.</p>
     <div style="text-align: center; margin: 32px 0;">
       <a href="${verificationUrl}" class="btn">Verify Email Address</a>
@@ -188,7 +202,7 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const html = baseTemplate(`
     <h1>Reset Your Password</h1>
-    <p>Hi ${name || "there"},</p>
+    <p>Hi ${esc(name) || "there"},</p>
     <p>We received a request to reset your password. Click the button below to create a new password. This link expires in 1 hour.</p>
     <div style="text-align: center; margin: 32px 0;">
       <a href="${resetUrl}" class="btn">Reset Password</a>
@@ -236,7 +250,7 @@ export async function sendOrderConfirmationEmail(
     .map(
       (item) => `
     <tr>
-      <td>${item.name}</td>
+      <td>${esc(item.name)}</td>
       <td style="text-align: center;">${item.quantity}</td>
       <td style="text-align: right;">${formatPrice(item.price)}</td>
     </tr>
@@ -272,9 +286,9 @@ export async function sendOrderConfirmationEmail(
     <div class="divider"></div>
     <h2>Adresse de livraison</h2>
     <p style="color: #475569;">
-      ${order.shippingAddress.firstName} ${order.shippingAddress.lastName}<br>
-      ${order.shippingAddress.addressLine1}<br>
-      ${order.shippingAddress.city}${order.shippingAddress.state ? `, ${order.shippingAddress.state}` : ""}<br>
+      ${esc(order.shippingAddress.firstName)} ${esc(order.shippingAddress.lastName)}<br>
+      ${esc(order.shippingAddress.addressLine1)}<br>
+      ${esc(order.shippingAddress.city)}${order.shippingAddress.state ? `, ${esc(order.shippingAddress.state)}` : ""}<br>
       ${order.shippingAddress.country}
     </p>
     <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 16px 20px; margin: 24px 0;">
@@ -373,10 +387,10 @@ export async function sendContactEmail(data: {
 }): Promise<void> {
   const html = baseTemplate(`
     <h1>New Contact Message</h1>
-    <p><strong>From:</strong> ${data.name} (${data.email})</p>
-    <p><strong>Subject:</strong> ${data.subject}</p>
+    <p><strong>From:</strong> ${esc(data.name)} (${esc(data.email)})</p>
+    <p><strong>Subject:</strong> ${esc(data.subject)}</p>
     <div class="divider"></div>
-    <p style="white-space: pre-wrap;">${data.message}</p>
+    <p style="white-space: pre-wrap;">${esc(data.message)}</p>
   `);
 
   await sendEmail({
@@ -392,7 +406,7 @@ export async function sendNewsletterWelcomeEmail(
 ): Promise<void> {
   const html = baseTemplate(`
     <h1>You're Subscribed! 🎊</h1>
-    <p>Hi ${name || "there"},</p>
+    <p>Hi ${esc(name) || "there"},</p>
     <p>Thank you for subscribing to the ${APP_NAME} newsletter. You'll be the first to know about:</p>
     <ul style="margin: 16px 0; padding-left: 20px; color: #475569;">
       <li style="margin-bottom: 8px;">🔥 Exclusive deals and flash sales</li>

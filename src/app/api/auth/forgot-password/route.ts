@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { getAppUrl } from "@/lib/app-url";
 import { forgotPasswordSchema } from "@/lib/validations";
 import { getUserByEmail } from "@/lib/auth";
 import { db } from "@/db";
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
         expiresAt,
       });
 
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const appUrl = getAppUrl();
       const resetUrl = `${appUrl}/auth/reset-password?token=${token}`;
 
       sendPasswordResetEmail(

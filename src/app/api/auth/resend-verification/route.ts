@@ -1,4 +1,5 @@
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
+import { getAppUrl } from "@/lib/app-url";
 import { db } from "@/db";
 import { emailVerificationTokens } from "@/db/schema";
 import { getCurrentUser } from "@/lib/session";
@@ -65,7 +66,7 @@ export async function POST() {
       });
     });
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const appUrl = getAppUrl();
     await sendEmailVerification(
       user.email,
       user.name || user.email,

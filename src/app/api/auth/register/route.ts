@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { getAppUrl } from "@/lib/app-url";
 import { cookies } from "next/headers";
 import { registerSchema } from "@/lib/validations";
 import {
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
       expiresAt,
     });
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const appUrl = getAppUrl();
     const verificationUrl = `${appUrl}/auth/verify-email?token=${verificationToken}`;
 
     // Send emails (non-blocking)

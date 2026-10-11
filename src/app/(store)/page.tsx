@@ -8,6 +8,7 @@ import FeaturedProducts from "@/components/home/featured-products";
 import FlashSaleSection from "@/components/home/flash-sale-section";
 import NewsletterSection from "@/components/home/newsletter-section";
 import type { Product, Category } from "@/types";
+import { getAppUrl } from "@/lib/app-url";
 
 export const metadata: Metadata = {
   title: "ShopElite - Premium E-Commerce Platform",
@@ -119,12 +120,12 @@ export default async function HomePage() {
             "@context": "https://schema.org",
             "@type": "WebSite",
             name: "ShopElite",
-            url: process.env.NEXT_PUBLIC_APP_URL,
+            url: getAppUrl(),
             potentialAction: {
               "@type": "SearchAction",
               target: {
                 "@type": "EntryPoint",
-                urlTemplate: `${process.env.NEXT_PUBLIC_APP_URL}/search?q={search_term_string}`,
+                urlTemplate: `${getAppUrl()}/search?q={search_term_string}`,
               },
               "query-input": "required name=search_term_string",
             },

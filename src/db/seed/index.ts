@@ -110,14 +110,27 @@ async function upsertProduct(data: {
 }
 
 async function seedAdmin() {
-  const email = "admin@shopelite.com";
+  const email = (process.env.ADMIN_EMAIL || "admin@shopelite.com").trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD;
+  const isLocalDb = /@(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(process.env.DATABASE_URL || "");
+
+  // Never create a well-known admin login on a remote (public) database
+  if (!password && !isLocalDb) {
+    console.log("  admin NOT created: set ADMIN_PASSWORD (and optionally ADMIN_EMAIL) to create one on a remote database");
+    return;
+  }
+  if (password && password.length < 8) {
+    console.log("  admin NOT created: ADMIN_PASSWORD must be at least 8 characters");
+    return;
+  }
+
   const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
   if (existing[0]) {
     console.log(`  admin already exists (${email})`);
     return;
   }
 
-  const passwordHash = await hashPassword("Admin123!");
+  const passwordHash = await hashPassword(password || "Admin123!");
   await db.insert(users).values({
     id: generateId("usr"),
     email,
@@ -129,7 +142,7 @@ async function seedAdmin() {
     passwordHash,
     isActive: true,
   });
-  console.log(`  created admin: ${email} / Admin123!`);
+  console.log(password ? `  created admin: ${email}` : `  created admin: ${email} / Admin123! (local database only)`);
 }
 
 async function seedShipping() {

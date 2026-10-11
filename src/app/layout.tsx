@@ -2,11 +2,10 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 import "./globals.css";
+import { getAppUrl } from "@/lib/app-url";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  ),
+  metadataBase: new URL(getAppUrl()),
   title: {
     default: "ShopElite - Premium E-Commerce",
     template: "%s | ShopElite",
@@ -26,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: process.env.NEXT_PUBLIC_APP_URL,
+    url: getAppUrl(),
     siteName: "ShopElite",
     title: "ShopElite - Premium E-Commerce",
     description:
